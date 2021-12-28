@@ -26,7 +26,6 @@ interface Props {
 
 const TaskList:FC<Props>=({tasks}) : ReactElement=>{
   const classes = useStyles();
-  console.log(tasks);
   return (
     <div className={classes.root}>
         <Grid container spacing={3}>

@@ -12,3 +12,5 @@ export const PAGE_TITLE_SETTINGS = "Settings"
 export const FOOTER_HEIGHT = 30
 export const HEADER_HEIGHT = 60
 export const DRAWER_WIDTH = 250
+
+export const FIREBASE_EMULATION="emulate";

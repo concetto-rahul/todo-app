@@ -13,6 +13,7 @@
     "@types/node": "^16.11.14",
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.11",
+    "firebase": "^9.6.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-helmet-async": "^1.2.2",
@@ -21,8 +22,21 @@
     "typescript": "^4.5.4",
     "web-vitals": "^2.1.2"
   },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv": "^10.0.0",
+    "env-cmd": "^10.1.0",
+    "firebase-tools": "^9.20.0"
+  },
   "scripts": {
     "start": "react-scripts start",
+    "start:default": "env-cmd -f .env.development craco start",
+    "start:emulate": "cross-env REACT_APP_FIREBASE_ENV=emulate yarn start",
+    "build:functions": "yarn --cwd ./functions build",
+    "generate-config:functions": "yarn --cwd ./functions generate-config",
+    "emulate": "cross-env REACT_APP_FIREBASE_ENV=emulate firebase emulators:exec --import=./firebase_emulator --export-on-exit --only auth,firestore,functions --ui",
+    "emulate:start": "yarn build:functions && firebase emulators:start --import=./firebase_emulator --export-on-exit --only auth,firestore,functions",
+    "emulate:debug-functions": "yarn emulate:start --inspect-functions",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
