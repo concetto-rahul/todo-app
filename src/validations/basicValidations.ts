@@ -15,7 +15,7 @@ export const isArray = (value: any) => value && Array.isArray(value);
 export const isString = (value: any) => value && typeof value === 'string';
 export const isObject = (value: any) => value && typeof value === 'object';
 
-const textOnlyPattern = /^[A-Za-z]+$/;
+const textOnlyPattern = /^[A-Za-z ]+$/;
 
 export const textOnly = (value: any) => textOnlyPattern.test(value)
 

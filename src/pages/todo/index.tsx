@@ -13,6 +13,8 @@ import TaskForm from "./taskForm";
 import TaskList from "./taskList";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { Task } from "../../schema/task";
+import { taskActionTypes } from "../../reducer/task";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -37,6 +39,7 @@ const TodoApp: FC<any> = (): ReactElement => {
   const { state, dispatch } = useContext(TaskContext);
   const [openTaskForm, setOpenTaskForm] = useState(false);
   const [syncingListData, setSyncingListData] = useState(false);
+  const [formFieldData, setFormFieldData] = useState<Task | null>(null);
   const classes = useStyles();
 
   useEffect(() => {
@@ -46,42 +49,53 @@ const TodoApp: FC<any> = (): ReactElement => {
       const uploadFile = await httpsCallable(functions, "uploadFile");
       await uploadFile({
         code: redirectURLCode,
-        listData:[
-            {
-                "id": 1640699479291,
-                "title": "Create Your New Task One",
-                "description": "Create Your New Task One Create Your New Task One Create Your New Task One Create Your New Task One Create Your New Task OneCreate Your New Task One Create Your New Task One",
-                "createdAt": "2021-12-28T13:51:19.291Z",
-                "updatedAt": "2021-12-28T13:51:19.291Z",
-                "status": "pending"
-            },
-            {
-                "id": 1640699490360,
-                "title": "Create Your New Task Two",
-                "description": "Create Your New Task Two Create Your New Task Two Create Your New Task Two Create Your New Task Two Create Your New Task Two Create Your New Task Two",
-                "createdAt": "2021-12-28T13:51:30.360Z",
-                "updatedAt": "2021-12-28T13:51:30.360Z",
-                "status": "pending"
-            },
-            {
-                "id": 1640699501020,
-                "title": "Create Your New Task Three",
-                "description": "Create Your New Task Three Create Your New Task Three Create Your New Task Three Create Your New Task Three Create Your New Task Three Create Your New Task Three",
-                "createdAt": "2021-12-28T13:51:41.020Z",
-                "updatedAt": "2021-12-28T13:51:41.020Z",
-                "status": "pending"
-            }
-        ]
+        listData: [
+          {
+            id: 1640699479291,
+            title: "Create Your New Task One",
+            description:
+              "Create Your New Task One Create Your New Task One Create Your New Task One Create Your New Task One Create Your New Task OneCreate Your New Task One Create Your New Task One",
+            createdAt: "2021-12-28T13:51:19.291Z",
+            updatedAt: "2021-12-28T13:51:19.291Z",
+            status: "pending",
+          },
+          {
+            id: 1640699490360,
+            title: "Create Your New Task Two",
+            description:
+              "Create Your New Task Two Create Your New Task Two Create Your New Task Two Create Your New Task Two Create Your New Task Two Create Your New Task Two",
+            createdAt: "2021-12-28T13:51:30.360Z",
+            updatedAt: "2021-12-28T13:51:30.360Z",
+            status: "pending",
+          },
+          {
+            id: 1640699501020,
+            title: "Create Your New Task Three",
+            description:
+              "Create Your New Task Three Create Your New Task Three Create Your New Task Three Create Your New Task Three Create Your New Task Three Create Your New Task Three",
+            createdAt: "2021-12-28T13:51:41.020Z",
+            updatedAt: "2021-12-28T13:51:41.020Z",
+            status: "pending",
+          },
+        ],
       })
         .then((res: any) => {
-          console.log("uploadFile res",res?.data);
+          console.log("uploadFile res", res?.data);
         })
         .catch((err) => console.log("uploadFile Error", err));
     }
     redirectURLCode && updateListData();
   }, [redirectURLCode]);
 
-  const handleClickOpenTaskForm = () => {
+  const handleClickOpenTaskForm = (taskId: null | string = null) => {
+    if (taskId && state?.list) {
+      const listData = state?.list?.filter(
+        (listData) => listData.id === taskId
+      );
+      if(listData.length > 0){
+        setFormFieldData({...listData[0]});
+      }
+    }
     setOpenTaskForm(true);
   };
 
@@ -101,6 +115,15 @@ const TodoApp: FC<any> = (): ReactElement => {
     }
   };
 
+  const closeTaskForm = ()=>{
+    setFormFieldData(null);
+    setOpenTaskForm(false);
+  }
+
+  const deleteTask = (taskId: undefined | string) => {
+    taskId && dispatch({ type: taskActionTypes.DELETE_TASK, payload: {id:taskId} })
+  };
+
   return (
     <Page
       title="Task list"
@@ -109,12 +132,13 @@ const TodoApp: FC<any> = (): ReactElement => {
     >
       <TaskForm
         openTaskForm={openTaskForm}
-        setOpenTaskForm={setOpenTaskForm}
+        closeTaskForm={closeTaskForm}
         dispatch={dispatch}
+        formFieldData={formFieldData}
       />
       <div className={classes.iconButton}>
         <Tooltip title="Add your new task" aria-label="add">
-          <Fab color="primary" onClick={handleClickOpenTaskForm}>
+          <Fab color="primary" onClick={() => handleClickOpenTaskForm(null)}>
             <AddIcon />
           </Fab>
         </Tooltip>
@@ -129,7 +153,7 @@ const TodoApp: FC<any> = (): ReactElement => {
           </Fab>
         </Tooltip>
       </div>
-      <TaskList tasks={state?.list} />
+      <TaskList tasks={state?.list} taskClickAction={handleClickOpenTaskForm} deleteTask={deleteTask}/>
     </Page>
   );
 };

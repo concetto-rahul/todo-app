@@ -1,8 +1,9 @@
 import {ReactElement, FC} from "react";
-import {Task,taskStatus} from "../../schema/task";
+import {Task} from "../../schema/task";
 
 import { makeStyles,Theme } from '@material-ui/core/styles';
-import {Grid,Card,CardActionArea,CardActions,CardContent,Button,Typography,CardMedia} from '@material-ui/core';
+import {Grid,Card,CardActionArea,CardContent,Typography,CardMedia} from '@material-ui/core';
+import DeleteIcon from "@material-ui/icons/Delete";
 
 const useStyles = makeStyles((theme: Theme)=>({
     root: {
@@ -17,14 +18,19 @@ const useStyles = makeStyles((theme: Theme)=>({
     },
     imgCard:{
         boxShadow:"none",
+    },
+    cardDeleteIcon:{
+        
     }
 }));
 
 interface Props {
     tasks:Task[];
+    taskClickAction:(taskId:string | undefined) => void;
+    deleteTask:(taskId:string | undefined) => void;
 }
 
-const TaskList:FC<Props>=({tasks}) : ReactElement=>{
+const TaskList:FC<Props>=({tasks,taskClickAction,deleteTask}) : ReactElement=>{
   const classes = useStyles();
   return (
     <div className={classes.root}>
@@ -32,7 +38,8 @@ const TaskList:FC<Props>=({tasks}) : ReactElement=>{
             {tasks.length?(
                     tasks.map((task:Task)=>{
                         return (
-                        <Grid item md={6} xs={12} key={task.id}>
+                        <Grid item md={6} xs={12} key={task.id} onClick={()=>taskClickAction(task.id)}>
+                            <DeleteIcon className={classes.cardDeleteIcon} onClick={()=>deleteTask(task.id)} />
                             <Card>
                                 <CardActionArea>
                                     <CardContent>
@@ -40,10 +47,6 @@ const TaskList:FC<Props>=({tasks}) : ReactElement=>{
                                         <Typography className={classes.cardDescription} variant="body2" color="textSecondary" component="p">{task.description}</Typography>
                                     </CardContent>
                                 </CardActionArea>
-                                <CardActions>
-                                    <Button size="small" color="primary">Share</Button>
-                                    <Button size="small" color="primary">Learn More</Button>
-                                </CardActions>
                             </Card>
                         </Grid>
                         )
