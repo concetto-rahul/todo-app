@@ -99,6 +99,7 @@ export default function TaskForm({
   const onSaveChanges = async (event: any) => {
     setSubmitButtonDisable(true);
     event.preventDefault();
+    dispatch({ type: taskActionTypes.ACTION_LOADING,payload: true});
     const data = new FormData(event.target);
 
     let formData = {
@@ -110,6 +111,7 @@ export default function TaskForm({
     if (!isEmpty(validationError)) {
       setFormErrors({ ...validationError });
       setSubmitButtonDisable(false);
+      dispatch({ type: taskActionTypes.ACTION_LOADING,payload: false});
     } else {
       if(formFieldData?.id){
         await dispatch({ type: taskActionTypes.UPDATE_TASK, payload: formData });

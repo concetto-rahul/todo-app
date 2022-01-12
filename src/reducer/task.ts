@@ -39,6 +39,7 @@ type TaskActionPayload = {
   [taskActionTypes.DELETE_TASK]: {
     id: string;
   };
+  [taskActionTypes.ACTION_LOADING]: boolean;
 };
 
 export type TaskActions =
@@ -78,14 +79,20 @@ export const taskReducer = (state: any, action: TaskActions) => {
       };
     case taskActionTypes.DELETE_TASK:
       const taskData = state.list;
-      taskData.splice(taskData.findIndex(
-        (data: Task) => data?.id === action.payload.id
-      ),1);
+      taskData.splice(
+        taskData.findIndex((data: Task) => data?.id === action.payload.id),
+        1
+      );
 
       return {
         ...state,
         loading: false,
-        list: [...taskData]
+        list: [...taskData],
+      };
+    case taskActionTypes.ACTION_LOADING:
+      return {
+        ...state,
+        loading: action.payload,
       };
     default:
       return state;

@@ -15,6 +15,7 @@ import TaskList from "./taskList";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { Task } from "../../schema/task";
 import { taskActionTypes } from "../../reducer/task";
+import PageDataLoader from "../../components/PageDataLoader";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -121,15 +122,18 @@ const TodoApp: FC<any> = (): ReactElement => {
   }
 
   const deleteTask = (taskId: undefined | string) => {
+    dispatch({ type: taskActionTypes.ACTION_LOADING,payload: true});
     taskId && dispatch({ type: taskActionTypes.DELETE_TASK, payload: {id:taskId} })
   };
 
+  console.log(state);
   return (
     <Page
       title="Task list"
       description="you can view your task list"
       key="todo,list,add,view,abcgfd,sgdgdg"
     >
+      <PageDataLoader open={state?.loading}/>
       <TaskForm
         openTaskForm={openTaskForm}
         closeTaskForm={closeTaskForm}

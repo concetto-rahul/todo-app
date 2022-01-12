@@ -29,6 +29,8 @@ export default function Router() {
       children: [
         { path: "", element: <Navigate to="list" replace /> },
         { path: "/list", element: <TodoApp /> },
+        { path: "/movies", element: <Movies /> },
+        { path: "/movies/:id", element: <MovieDetail /> },
       ],
     },
     {
@@ -64,3 +66,6 @@ const Page500 = Loadable(lazy(() => import("../components/Header")));
 const NotFound = Loadable(lazy(() => import("../components/Header")));
 
 const TodoApp = Loadable(lazy(() => import("../pages/todo")));
+
+const Movies = Loadable(lazy(() => import("../pages/movies")));
+const MovieDetail = Loadable(lazy(() => import("../pages/movies/MovieDetail")));
