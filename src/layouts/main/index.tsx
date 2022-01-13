@@ -20,6 +20,7 @@ import BottomNavigation from "@material-ui/core/BottomNavigation";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import TaskIcon from "@material-ui/icons/ListAltOutlined";
 import MoviesIcon from "@material-ui/icons/MovieFilterOutlined";
+import VideotelephonyIcon from '@material-ui/icons/DuoOutlined';
 
 const useStyle = makeStyles((theme) => ({
   rootStyle: {
@@ -75,6 +76,11 @@ export const bottomNavigationTab: BottomNavigationTabType[] = [
     label: "Movies",
     url: "/movies",
     icon: <MoviesIcon />,
+  },
+  {
+    label: "Videotelephony",
+    url: "/videotelephony",
+    icon: <VideotelephonyIcon />,
   },
 ];
 

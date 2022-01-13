@@ -31,6 +31,7 @@ export default function Router() {
         { path: "/list", element: <TodoApp /> },
         { path: "/movies", element: <Movies /> },
         { path: "/movies/:id", element: <MovieDetail /> },
+        { path: "/videotelephony", element: <Videotelephony /> },
       ],
     },
     {
@@ -69,3 +70,4 @@ const TodoApp = Loadable(lazy(() => import("../pages/todo")));
 
 const Movies = Loadable(lazy(() => import("../pages/movies")));
 const MovieDetail = Loadable(lazy(() => import("../pages/movies/MovieDetail")));
+const Videotelephony = Loadable(lazy(() => import("../pages/videotelephony")));

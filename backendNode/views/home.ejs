@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Socket Chat</title>
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"
+        integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <h1>Socket.io Chat</h1>
+    <input type="text" name="message" id="message" value="" />
+    <button type="button" name="sendMessage" onclick="sendMessage()">Send Message</button>
+    <div id="chatmessageDiv"></div>
+    <script>
+        const socket = io("http://localhost:5000");
+        socket.on("connection", () => {
+
+        })
+
+        socket.on("message", (data) => {
+            var newNode = document.getElementById('chatmessageDiv');
+            newNode.innerHTML = "<p>"+data+"</p>";
+        })
+
+        function sendMessage() {
+            let message = document.getElementById("message").value;
+            if (message.length > 0) {
+                console.log("message", message, message.length);
+                document.getElementById("message").value="";
+                socket.emit("message", message)
+            }
+        }
+    </script>
+</body>
+
+</html>
