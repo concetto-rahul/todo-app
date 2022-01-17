@@ -16,6 +16,8 @@ export const isString = (value: any) => value && typeof value === 'string';
 export const isObject = (value: any) => value && typeof value === 'object';
 
 const textOnlyPattern = /^[A-Za-z ]+$/;
-
 export const textOnly = (value: any) => textOnlyPattern.test(value)
+
+const phoneNumberPattern = /^[789]\d{9}$/;
+export const phoneNumber = (value: any) => phoneNumberPattern.test(value)
 
