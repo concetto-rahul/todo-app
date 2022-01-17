@@ -22,8 +22,8 @@ const socket = io("http://localhost:5000");
 const Videotelephony: FC<any> = (): ReactElement => {
   const [myCallingID, setMyCallingID] = useState("");
   const [myCallingName, setMyCallingName] = useState("");
-  const [muteMyVideo, setMuteMyVideo] = useState(false);
-  const [onMyVideoStream, setOnMyVideoStream] = useState(false);
+  const [muteMyVideo, setMuteMyVideo] = useState(true);
+  const [onMyVideoStream, setOnMyVideoStream] = useState(true);
 
   const [myStream, setMyStream] = useState<any>();
   const [callerID, setCallerID] = useState("");
@@ -36,6 +36,8 @@ const Videotelephony: FC<any> = (): ReactElement => {
     callEnded: false,
   });
 
+  console.log(myStream && myStream.getTracks());
+
   const myStreamRef = useRef<any>();
   const userVideoRef = useRef<any>();
   const videoConnectionRef = useRef<any>();
@@ -46,15 +48,24 @@ const Videotelephony: FC<any> = (): ReactElement => {
     });
 
     socket.on("callUser", (data) => {
+      console.log("callUsercallUsercallUser", data);
       setCallerData({
         ...callerData,
         receivingCall: true,
-        callerID: data.from,
+        callerID: data.fromID,
         callerName: data.name,
         callerSingnal: data.signal,
       });
     });
   }, []);
+
+  useEffect(() => {
+    if (myStream) myStream.getAudioTracks()[0].enabled = muteMyVideo;
+  }, [muteMyVideo]);
+
+  useEffect(() => {
+    if (myStream) myStream.getVideoTracks()[0].enabled = onMyVideoStream;
+  }, [onMyVideoStream]);
 
   const handleAudioAction = () => {
     setMuteMyVideo((muteMyVideo) => !muteMyVideo);
@@ -64,76 +75,47 @@ const Videotelephony: FC<any> = (): ReactElement => {
     setOnMyVideoStream((onMyVideoStream) => !onMyVideoStream);
   };
 
-  useEffect(() => {
-    console.log("audio update", muteMyVideo);
-    if (muteMyVideo) {
-      myStream && startVideoStream();
-    } else if (!muteMyVideo) {
-      myStream && stopVideoStream("audio");
-    }
-  }, [muteMyVideo]);
-
-  useEffect(() => {
-    console.log("Video update", onMyVideoStream);
-    if (onMyVideoStream) {
-      startVideoStream();
-    } else if (!onMyVideoStream) {
-      myStream && stopVideoStream("video");
-    }
-  }, [onMyVideoStream]);
-
-  const stopVideoStream = (actionName: string) => {
-    myStream &&
-      myStream.getTracks().forEach((track: any) => {
-        if (track.readyState === "live" && track.kind === actionName) {
-          track.stop();
-        }
-      });
-  };
-
-  const startVideoStream = () => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: muteMyVideo })
-      .then((stream) => {
-        setMyStream(stream);
-        myStreamRef.current.srcObject = stream;
-      });
-  };
-
-  const callUser = async () => {
+  const callUser = () => {
     if (myCallingName.length > 0 && callerID.length > 10) {
       if (myCallingID !== callerID) {
-        await setOnMyVideoStream(true);
-        await startVideoStream();
-        const peer = new Peer({
-          initiator: true,
-          trickle: false,
-          stream: myStream,
-        });
+        navigator.mediaDevices
+          .getUserMedia({ video: true, audio: true })
+          .then((stream) => {
+            setCallerID("");
+            setMyStream(stream);
+            myStreamRef.current.srcObject = stream;
 
-        peer.on("signal", (data: any) => {
-          socket.emit("callUser", {
-            toID: callerID,
-            signalData: data,
-            from: myCallingID,
-            name: myCallingName,
+            const peer = new Peer({
+              initiator: true,
+              trickle: false,
+              stream: stream,
+            });
+
+            peer.on("signal", (data: any) => {
+              socket.emit("callUser", {
+                toID: callerID,
+                signalData: data,
+                fromID: myCallingID,
+                name: myCallingName,
+              });
+            });
+
+            peer.on("stream", (userStream: any) => {
+              console.log("1", userStream);
+              userVideoRef.current.srcObject = userStream;
+            });
+
+            socket.on("callAccepted", (signal) => {
+              console.log("callAcceptedcallAcceptedcallAccepted");
+              setCallerData({
+                ...callerData,
+                callAccepted: true,
+              });
+              peer.signal(signal);
+            });
+
+            videoConnectionRef.current = peer;
           });
-        });
-
-        peer.on("stream", (stream: any) => {
-          userVideoRef.current.srcObject = stream;
-        });
-
-        socket.on("callAccepted", (signal) => {
-          setCallerData({
-            ...callerData,
-            callAccepted: true,
-          });
-          peer.signal(signal);
-        });
-
-        videoConnectionRef.current = peer;
-        console.log("call user");
       } else {
         alert("Please provide valid caller ID.");
       }
@@ -143,42 +125,53 @@ const Videotelephony: FC<any> = (): ReactElement => {
   };
 
   const answerCall = async () => {
-    await setOnMyVideoStream(true);
-    await startVideoStream();
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        setCallerID("");
+        setMyStream(stream);
+        myStreamRef.current.srcObject = stream;
 
-    setCallerData({
-      ...callerData,
-      callAccepted: true,
-    });
+        setCallerData({
+          ...callerData,
+          callAccepted: true,
+        });
 
-    const peer2 = new Peer({
-      initiator: false,
-      trickle: false,
-      stream: myStream,
-    });
+        const peer2 = new Peer({
+          initiator: false,
+          trickle: false,
+          stream: stream,
+        });
 
-    peer2.on("signal", (data: any) => {
-      socket.emit("answerCall", { signal: data, to: callerID });
-    });
-    peer2.on("stream", (stream: any) => {
-      userVideoRef.current.srcObject = stream;
-    });
+        peer2.on("signal", (data: any) => {
+          socket.emit("answerCall", {
+            signal: data,
+            toID: callerData.callerID,
+          });
+        });
 
-    peer2.signal(callerData.callerSingnal);
+        peer2.on("stream", (userStream2: any) => {
+          console.log("2", userStream2);
+          userVideoRef.current.srcObject = userStream2;
+        });
 
-    videoConnectionRef.current = peer2;
-    console.log("ansercall");
+        peer2.signal(callerData.callerSingnal);
+
+        videoConnectionRef.current = peer2;
+      });
   };
 
   const leaveCall = () => {
     setCallerData({
       ...callerData,
       callEnded: true,
+      callAccepted: false,
+      receivingCall: false,
+      callerID: "",
+      callerName: "",
+      callerSingnal: "",
     });
-    videoConnectionRef && videoConnectionRef.current.destroy();
-    userVideoRef && userVideoRef.current.destroy();
-    myStreamRef && myStreamRef.current.destroy();
-    setMyStream("");
+    videoConnectionRef.current.destroy();
   };
 
   return (
@@ -204,76 +197,90 @@ const Videotelephony: FC<any> = (): ReactElement => {
         <Grid item xs={12} md={4}>
           <video
             playsInline
-            muted
             ref={myStreamRef}
             autoPlay
             style={{ width: "100%", border: "1px solid #000" }}
           />
-          <IconButton
-            color="primary"
-            disabled={myStream ? false : true}
-            onClick={handleAudioAction}
-          >
-            {muteMyVideo ? <MuteIcon /> : <UnMuteIcon />}
-          </IconButton>
-          <IconButton
-            color="primary"
-            disabled={myStream ? false : true}
-            onClick={handleVideoStreamAction}
-          >
-            {onMyVideoStream ? <VideoOnIcon /> : <VideoOffIcon />}
-          </IconButton>
+          {myStream && (
+            <>
+              <IconButton
+                color="primary"
+                disabled={myStream ? false : true}
+                onClick={handleAudioAction}
+              >
+                {muteMyVideo ? <MuteIcon /> : <UnMuteIcon />}
+              </IconButton>
+              <IconButton
+                color="primary"
+                disabled={myStream ? false : true}
+                onClick={handleVideoStreamAction}
+              >
+                {onMyVideoStream ? <VideoOnIcon /> : <VideoOffIcon />}
+              </IconButton>
+            </>
+          )}
         </Grid>
         <Grid item xs={12} md={6}>
-          {callerData.callAccepted && !callerData.callEnded ? (
-            <>
-              <video
-                playsInline
-                muted
-                ref={userVideoRef}
-                autoPlay
-                style={{ width: "100%", border: "1px solid #000" }}
-              />
-              <Button variant="contained" color="secondary" onClick={leaveCall}>
-                End Call
-              </Button>
-            </>
-          ) : (
-            <Grid container spacing={2}>
-              <Grid item xs={8} md={8}>
-                <TextField
-                  id="standard-basic"
-                  label="Enter Caller ID"
-                  variant="standard"
-                  fullWidth
-                  value={callerID}
-                  onChange={(e) => setCallerID(e.target.value)}
+          <Grid container spacing={2}>
+            {callerData.callAccepted && !callerData.callEnded ? (
+              <>
+                <video
+                  playsInline
+                  muted
+                  ref={userVideoRef}
+                  autoPlay
+                  style={{ width: "100%", border: "1px solid #000" }}
                 />
-              </Grid>
-              <Grid item xs={4} md={4}>
-                <Button variant="contained" color="primary" onClick={callUser}>
-                  Call User
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={leaveCall}
+                >
+                  End Call
                 </Button>
-              </Grid>
+              </>
+            ) : (
+              <>
+                <Grid item xs={8} md={8}>
+                  <TextField
+                    id="standard-basic"
+                    label="Enter Caller ID"
+                    variant="standard"
+                    fullWidth
+                    value={callerID}
+                    onChange={(e) => setCallerID(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={4} md={4}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={callUser}
+                  >
+                    Call User
+                  </Button>
+                </Grid>
 
-              <Grid item xs={12} md={12}>
-                {callerData.receivingCall && !callerData.callAccepted ? (
-                  <Box style={{ marginTop: "20px" }}>
-                    <Typography variant="h6">
-                      {callerData.callerName} is calling...
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={answerCall}
-                    >
-                      Answer
-                    </Button>
-                  </Box>
-                ) : null}
-              </Grid>
-            </Grid>
-          )}
+                <Grid item xs={12} md={12}>
+                  {callerData.receivingCall && !callerData.callAccepted ? (
+                    <Box style={{ marginTop: "20px" }}>
+                      <Typography variant="h6">
+                        {callerData.callerName} is calling...
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={answerCall}
+                      >
+                        Answer
+                      </Button>
+                    </Box>
+                  ) : null}
+                </Grid>
+              </>
+            )}
+            <Grid item xs={12} md={12}></Grid>
+          </Grid>
         </Grid>
       </Grid>
     </Page>

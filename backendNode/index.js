@@ -18,19 +18,25 @@ io.on("connection", (socket) => {
   });
 
   socket.on("callUser", (data) => {
+    console.log("callUser",data);
     io.to(data.toID).emit("callUser", {
       signal: data.signalData,
-      from: data.fromID,
+      fromID: data.fromID,
       name: data.name,
     });
   });
 
   socket.on("answerCall", (data) => {
+    console.log("answerCall",data);
     io.to(data.toID).emit("callAccepted", data.signal);
   });
 
+  socket.on("endCall", (data) => {
+    socket.broadcast.emit("endCall");
+  });
+
   socket.on("disconnect", () => {
-    socket.broadcast.emit("callEnded");
+    socket.broadcast.emit("endCall");
     console.log("user disconnected", socket.id);
   });
 });
