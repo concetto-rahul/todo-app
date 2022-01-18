@@ -1,33 +1,25 @@
-import { ReactElement, FC, useState, useContext } from "react";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import { useNavigate } from "react-router-dom";
-
-import { Typography, Box, TextField, Button } from "@material-ui/core";
+import { useContext, useState } from "react";
+import { ChatContext } from "../../context/chat";
 import { checkChatLoginValidation } from "../../validations/chatLoginValidation";
 import { isEmpty } from "../../validations/basicValidations";
-import { ChatContext } from "../../context/chat";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      marginTop: theme.spacing(3),
-      "& > *": {
-        margin: theme.spacing(1),
-        width: "35ch",
-      },
-    },
-  })
-);
-const Login: FC<any> = (): ReactElement => {
-  const classes = useStyles();
-  const { saveLoginData }=useContext(ChatContext);
+import {
+  Button,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@material-ui/core";
 
-  const navigate = useNavigate();
+export default function CreateNewContact() {
+  const { showCreateForm, handeleCloseForm, createContact } =
+    useContext(ChatContext);
   const [mobileNumber, setMobileNumber] = useState<string>("");
   const [userName, setUserName] = useState<string>("");
   const [formErrors, setFormErrors] = useState<any>({});
 
-  const handleLogin = (event: any) => {
+  const submitFormData = (event: any) => {
     event.preventDefault();
     const formData = { mobileNumber, userName };
     const validationError = checkChatLoginValidation(formData);
@@ -35,30 +27,34 @@ const Login: FC<any> = (): ReactElement => {
     if (!isEmpty(validationError)) {
       setFormErrors({ ...validationError });
     } else {
-      event.target.reset();
-      saveLoginData(formData);
-      navigate("/chat");
+      createContact({ userName, userID: mobileNumber });
+      setMobileNumber("");
+      setUserName("");
+      setFormErrors({});
+      handeleCloseForm();
     }
   };
 
   return (
     <>
-      <Box color="text.primary">
-        <Typography variant="h4">Login</Typography>
-        <form
-          className={classes.root}
-          onSubmit={handleLogin}
-          autoComplete="off"
-        >
+      <Dialog
+        open={showCreateForm}
+        onClose={handeleCloseForm}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Add New Contact</DialogTitle>
+        <DialogContent>
           <TextField
             id="userName"
-            label="Your Name"
+            label="Full Name"
             variant="outlined"
             name="userName"
             error={formErrors?.userName ? true : false}
             helperText={formErrors?.userName}
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
+            fullWidth
+            style={{ marginBottom: "10px" }}
           />
           <TextField
             id="mobileNumber"
@@ -69,14 +65,18 @@ const Login: FC<any> = (): ReactElement => {
             helperText={formErrors?.mobileNumber}
             value={mobileNumber}
             onChange={(e) => setMobileNumber(e.target.value)}
+            fullWidth
           />
-          <Button type="submit" variant="contained" color="primary">
-            Submit
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={submitFormData} color="primary">
+            Save Data
           </Button>
-        </form>
-      </Box>
+          <Button onClick={handeleCloseForm} color="secondary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
-};
-
-export default Login;
+}
