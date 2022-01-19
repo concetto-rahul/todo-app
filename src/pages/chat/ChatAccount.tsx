@@ -11,11 +11,11 @@ import {
   Fade,
 } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import MessageIcon from "@material-ui/icons/MessageOutlined";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     drawerAvatarBox: {
-      padding: "2px 1px 2px 3px",
       display: "flex",
       alignItems: "center",
     },
@@ -32,7 +32,8 @@ interface Props {
 
 export default function ChatAccount({ isCollapse }: Props) {
   const classes = useStyles();
-  const { userID, userName, handeleOpenForm } = useContext(ChatContext);
+  const { userID, userName, handeleOpenForm, handeleShowContactOpen } =
+    useContext(ChatContext);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -65,8 +66,11 @@ export default function ChatAccount({ isCollapse }: Props) {
               {userID}
             </Typography>
           </Box>
+          <IconButton onClick={handeleShowContactOpen}>
+            <MessageIcon />
+          </IconButton>
           <IconButton
-            aria-label="options"
+            aria-label="Options"
             aria-controls="fade-menu"
             aria-haspopup="true"
             onClick={handleClick}

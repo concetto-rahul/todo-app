@@ -44,7 +44,7 @@ const Login: FC<any> = (): ReactElement => {
   return (
     <>
       <Box color="text.primary">
-        <Typography variant="h4">Login</Typography>
+        <Typography variant="h6">Login</Typography>
         <form
           className={classes.root}
           onSubmit={handleLogin}

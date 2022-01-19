@@ -1,9 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  createStyles,
-  makeStyles,
-  Theme,
-} from "@material-ui/core/styles";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import {
   Box,
   Hidden,
@@ -25,6 +21,7 @@ import MailIcon from "@material-ui/icons/Mail";
 import PeopleFill from "@material-ui/icons/PeopleOutline";
 
 import ChatAccount from "./ChatAccount";
+import ContactUsers from "./ContactUsers";
 
 const DRAWER_WIDTH = 320;
 
@@ -116,12 +113,10 @@ const ChatSidebar = (props: WithWidth) => {
     return handleOpenDrawer();
   }, [isMobile]);
 
-
-
   const renderContent = (
     <>
       <Box className={classes.drawerHeader}>
-        <ChatAccount isCollapse={isCollapse}/>
+        <ChatAccount isCollapse={isCollapse} />
         <IconButton onClick={handleDrawer}>
           {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
         </IconButton>
@@ -153,6 +148,7 @@ const ChatSidebar = (props: WithWidth) => {
 
   return (
     <>
+      <ContactUsers />
       <Hidden only={["lg", "xl", "md"]}>
         <IconButton
           className={classes.mobileDrawerIcon}
