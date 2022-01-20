@@ -9,36 +9,51 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("user connected", socket.id);
-  socket.emit("me", socket.id);
-
-  socket.on("message", (data) => {
-    io.emit("message", data);
-    // socket.broadcast.emit("message", data);
-  });
-
-  socket.on("callUser", (data) => {
-    console.log("callUser",data);
-    io.to(data.toID).emit("callUser", {
-      signal: data.signalData,
-      fromID: data.fromID,
-      name: data.name,
+  const id = socket.handshake.query.id;
+  socket.join(id);
+  console.log("ididid", id);
+  socket.on("send-message", ({ recipients, messageData }) => {
+    console.log("recipients, messageData",recipients, messageData);
+    recipients.forEach((recipient) => {
+      const newRecipients = recipients.filter((r) => r !== recipient);
+      newRecipients.push(id);
+      socket.broadcast.to(recipient).emit("receive-message", {
+        recipients: newRecipients,
+        messageData,
+      });
     });
   });
 
-  socket.on("answerCall", (data) => {
-    console.log("answerCall",data);
-    io.to(data.toID).emit("callAccepted", data.signal);
-  });
+  // console.log("user connected", socket.id);
+  // socket.emit("me", socket.id);
 
-  socket.on("endCall", (data) => {
-    socket.broadcast.emit("endCall");
-  });
+  // socket.on("message", (data) => {
+  //   io.emit("message", data);
+  //   // socket.broadcast.emit("message", data);
+  // });
 
-  socket.on("disconnect", () => {
-    socket.broadcast.emit("endCall");
-    console.log("user disconnected", socket.id);
-  });
+  // socket.on("callUser", (data) => {
+  //   console.log("callUser",data);
+  //   io.to(data.toID).emit("callUser", {
+  //     signal: data.signalData,
+  //     fromID: data.fromID,
+  //     name: data.name,
+  //   });
+  // });
+
+  // socket.on("answerCall", (data) => {
+  //   console.log("answerCall",data);
+  //   io.to(data.toID).emit("callAccepted", data.signal);
+  // });
+
+  // socket.on("endCall", (data) => {
+  //   socket.broadcast.emit("endCall");
+  // });
+
+  // socket.on("disconnect", () => {
+  //   socket.broadcast.emit("endCall");
+  //   console.log("user disconnected", socket.id);
+  // });
 });
 
 server.listen(5000, () => {

@@ -17,6 +17,7 @@ import {
   List,
   ListItem,
   ListItemIcon,
+  ListItemText,
 } from "@material-ui/core";
 
 import ArrowBackIcon from "@material-ui/icons/ArrowBackOutlined";
@@ -39,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) =>
     drawerPaper: {
       width: DRAWER_WIDTH,
     },
-    drawerHeader: {      
+    drawerHeader: {
       flexShrink: 0,
       minHeight: 70,
       display: "flex",
@@ -154,23 +155,24 @@ const ContactUsers = () => {
                   button
                   key={`contactUser${data.userName}`}
                   style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.12)" }}
-                  onClick={()=>selectUserForConversation(data.userID)}
+                  onClick={() => selectUserForConversation(data.userID)}
                 >
                   <ListItemIcon>
                     <Avatar alt={data.userName} src={`${data.userName}`} />
                   </ListItemIcon>
-                  <Box className={classes.drawerNameBox}>
-                    <Typography noWrap variant="subtitle1">
-                      {data.userName}
-                    </Typography>
-                    <Typography
-                      noWrap
-                      variant="body2"
-                      style={{ color: "text.secondary" }}
-                    >
-                      {data.userID}
-                    </Typography>
-                  </Box>
+                  <ListItemText
+                    primary={data.userName}
+                    primaryTypographyProps={{
+                      noWrap: true,
+                      variant: "subtitle2",
+                    }}
+                    secondary={data.userID}
+                    secondaryTypographyProps={{
+                      noWrap: true,
+                      variant: "body2",
+                      color: "textSecondary",
+                    }}
+                  />
                 </ListItem>
               );
             })}

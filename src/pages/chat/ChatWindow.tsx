@@ -36,8 +36,8 @@ export default function ChatWindow() {
           <UserHeaderAccount />
           <Divider />
           <Box className={classes.messageDiv}>
-            <Box style={{ flexGrow: 1 }}>
-              <ChatMessageList/>
+            <Box style={{ flexGrow: 1,display: "flex",flexDirection: "column" }}>
+              <ChatMessageList />
               <Divider />
               <ChatMessageInput />
             </Box>

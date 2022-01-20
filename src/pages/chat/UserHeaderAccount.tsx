@@ -24,8 +24,8 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(0, 3),
     },
     avatarBox: {
-      display: "flex", 
-      alignItems: "center"
+      display: "flex",
+      alignItems: "center",
     },
   })
 );
@@ -46,16 +46,21 @@ export default function UserHeaderAccount() {
     setAnchorEl(null);
   };
 
+  const headerUserName =
+    selectConversationUserData.length > 1
+      ? "Group"
+      : selectConversationUserData.map((data: any) => data.name).join(", ");
+      
   return (
     <>
       {selectConversationUserID && selectConversationUserData && (
         <Box className={classes.root}>
           <Box className={classes.avatarBox}>
             <Box style={{ position: "relative" }}>
-              <Avatar src={selectConversationUserData.userName} alt={selectConversationUserData.userName} />
+              <Avatar src={headerUserName} alt={headerUserName} />
             </Box>
             <Box style={{ marginLeft: "20px" }}>
-              <Typography variant="subtitle2">{selectConversationUserData.userName}</Typography>
+              <Typography variant="subtitle2">{headerUserName}</Typography>
               <Typography variant="body2" style={{ color: "text.secondary" }}>
                 {`last activity text`}
               </Typography>

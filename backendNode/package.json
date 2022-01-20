@@ -6,12 +6,14 @@
   "author": "Rahul",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon start"
+    "dev": "nodemon start"
   },
   "dependencies": {
     "ejs": "^3.1.6",
     "express": "^4.17.2",
-    "nodemon": "^2.0.15",
     "socket.io": "^4.4.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }
