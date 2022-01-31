@@ -4,11 +4,9 @@ import {
   createStyles,
   makeStyles,
   Theme,
-  styled,
   useTheme,
 } from "@material-ui/core/styles";
 import { Box, Avatar, Typography } from "@material-ui/core";
-import Scrollbar from "../../components/Scrollbar";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,9 +46,7 @@ export default function ChatMessageList() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log("scrollMessagesToBottom 1");
     const scrollMessagesToBottom = () => {
-      console.log("scrollMessagesToBottom 2");
       if (scrollRef.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       }
@@ -78,8 +74,6 @@ const ChatMessageItem = ({ message }: { message: any }) => {
   const isImage = message.contentType === "image";
   const senderName = message.senderName;
 
-  console.log("selectUserConversationMessages", message);
-
   return (
     <div className={classes.rootStyle}>
       <Box
@@ -106,7 +100,7 @@ const ChatMessageItem = ({ message }: { message: any }) => {
               ...(isMe && { justifyContent: "flex-end" }),
             }}
           >
-            {!isMe && `${senderName},`}&nbsp;
+            {!isMe && `${senderName}`}&nbsp;
             {/* {formatDistanceToNowStrict(new Date(message.createdAt), {
               addSuffix: true,
             })} */}

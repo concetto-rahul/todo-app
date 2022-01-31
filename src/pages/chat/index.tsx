@@ -1,5 +1,4 @@
-import { ReactElement, FC, useContext } from "react";
-import { ChatContext } from "../../context/chat";
+import { ReactElement, FC } from "react";
 import Page from "../../components/Page";
 import PageDataLoader from "../../components/PageDataLoader";
 import { Grid } from "@material-ui/core";
@@ -9,7 +8,7 @@ import Dashboard from "./Dashboard";
 import CreateNewContact from "./CreateNewContact";
 
 const Chat: FC<any> = (): ReactElement => {
-  const { userID } = useContext(ChatContext);
+  const userID = localStorage.getItem("chat-userID") || "";
   return (
     <Page
       title="Chat"

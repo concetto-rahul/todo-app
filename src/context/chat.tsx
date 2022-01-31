@@ -30,6 +30,7 @@ export interface ChatContextType {
   userName: string;
   contactList: ContactsData[] | [];
   saveLoginData: (data: LoginData) => void;
+  logoutLoginData: () => void;
   createContact: (data: ContactsData) => void;
   showCreateForm: boolean;
   handeleCloseForm: () => void;
@@ -50,6 +51,7 @@ export const ChatContext = createContext<ChatContextType>({
   userName: "",
   contactList: [],
   saveLoginData: (data: LoginData) => {},
+  logoutLoginData: () => {},
   createContact: (data: ContactsData) => {},
   showCreateForm: false,
   handeleCloseForm: () => {},
@@ -95,8 +97,14 @@ export const ChatContextProvider: FC<any> = ({ children }): ReactElement => {
     });
 
   const saveLoginData = ({ mobileNumber, userName }: LoginData) => {
-    localStorage.setItem("chat-userID", JSON.stringify(mobileNumber));
-    localStorage.setItem("chat-userName", JSON.stringify(userName));
+    localStorage.setItem("chat-userID", mobileNumber);
+    localStorage.setItem("chat-userName", userName);
+  };
+
+  const logoutLoginData = () => {
+    localStorage.removeItem("chat-userID");
+    localStorage.removeItem("chat-userName");
+    localStorage.removeItem("chat-contactList");
   };
 
   const createContact = (data: ContactsData) => {
@@ -128,10 +136,9 @@ export const ChatContextProvider: FC<any> = ({ children }): ReactElement => {
 
   useEffect(() => {
     if (socket === null) return;
-    socket.on("receive-message",(data:any) => {
-      console.log("receive-message", data);
+    socket.on("receive-message", (data: any) => {
       addMessage(data.recipients, data.messageData);
-    })
+    });
   }, [socket]);
 
   const sendMessage = (data: any) => {
@@ -216,6 +223,7 @@ export const ChatContextProvider: FC<any> = ({ children }): ReactElement => {
         userName,
         contactList,
         saveLoginData,
+        logoutLoginData,
         createContact,
         showCreateForm,
         handeleCloseForm,

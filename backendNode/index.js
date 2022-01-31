@@ -11,9 +11,9 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   const id = socket.handshake.query.id;
   socket.join(id);
-  console.log("ididid", id);
+
   socket.on("send-message", ({ recipients, messageData }) => {
-    console.log("recipients, messageData",recipients, messageData);
+    console.log("recipients, messageData", recipients, messageData);
     recipients.forEach((recipient) => {
       const newRecipients = recipients.filter((r) => r !== recipient);
       newRecipients.push(id);
@@ -22,6 +22,28 @@ io.on("connection", (socket) => {
         messageData,
       });
     });
+  });
+
+  socket.on("callUser", ({ toIDs, signalData, fromID, name }) => {
+    toIDs.forEach((id) => {
+      socket.broadcast.to(id).emit("callUser", {
+        signal: signalData,
+        fromID: fromID,
+        name: name,
+      });
+    });
+  });
+
+  socket.on("answerCall", ({ signal, toID }) => {
+    socket.broadcast.to(toID).emit("callAccepted", signal);
+  });
+
+  socket.on("rejectCall", (userId) => {
+    socket.broadcast.to(userId).emit("callRejected", userId);
+  });
+
+  socket.on("endCall", (userId) => {
+    socket.broadcast.to(userId).emit("callDisconnect", userId);
   });
 
   // console.log("user connected", socket.id);

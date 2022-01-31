@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { ChatContext } from "../../context/chat";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import {
@@ -32,11 +33,17 @@ interface Props {
 
 export default function ChatAccount({ isCollapse }: Props) {
   const classes = useStyles();
-  const { userID, userName, handeleOpenForm, handeleShowContactOpen } =
-    useContext(ChatContext);
+  const {
+    userID,
+    userName,
+    handeleOpenForm,
+    handeleShowContactOpen,
+    logoutLoginData,
+  } = useContext(ChatContext);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const navigate = useNavigate();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -47,6 +54,11 @@ export default function ChatAccount({ isCollapse }: Props) {
       handeleOpenForm();
     }
     setAnchorEl(null);
+  };
+
+  const handleLogoutData = () => {
+    logoutLoginData();
+    navigate("/chat");
   };
 
   return (
@@ -90,11 +102,10 @@ export default function ChatAccount({ isCollapse }: Props) {
               },
             }}
           >
-            <MenuItem>Profile</MenuItem>
             <MenuItem onClick={() => handleClose("addNewContact")}>
               Add New Contact
             </MenuItem>
-            <MenuItem>Logout</MenuItem>
+            <MenuItem onClick={handleLogoutData}>Logout</MenuItem>
           </Menu>
         </Box>
       )}

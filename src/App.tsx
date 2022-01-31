@@ -9,16 +9,16 @@ import { SocketContextProvider } from "./context/socket";
 function App() {
   const firebase = useInitFirebase();
   const { isInitialized } = firebase;
-  const id = localStorage.getItem("chat-userID") || "";;
+  const id = localStorage.getItem("chat-userID") || "";
   return (
     <>
       <FirebaseContext.Provider value={firebase}>
-      <SocketContextProvider id={id}>
-        <TaskContextProvider>
-          <ChatContextProvider>
-            {isInitialized ? <Router /> : <LoadingScreen />}
-          </ChatContextProvider>
-        </TaskContextProvider>
+        <SocketContextProvider id={id}>
+          <TaskContextProvider>
+            <ChatContextProvider>
+              {isInitialized ? <Router /> : <LoadingScreen />}
+            </ChatContextProvider>
+          </TaskContextProvider>
         </SocketContextProvider>
       </FirebaseContext.Provider>
     </>
