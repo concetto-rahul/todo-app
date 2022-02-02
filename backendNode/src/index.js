@@ -1,28 +1,22 @@
 const { port, view_engine } = require("./config/index");
 
 const app = require("express")();
+var bodyParser = require('body-parser')
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, { cors: { origin: "*" } });
-const db = require("./config/db");
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set("view engine", view_engine);
 
 const userRouter = require("./router/user");
 
-app.set("view engine", view_engine);
+app.use("/user", userRouter);
 
 app.get("/", async (req, res) => {
-  try {
-    const [result] = await db.execute(
-      "select * from test where name=? and status=?",
-      ["b", 2]
-    );
-    console.log(result);
-  } catch (err) {
-    console.log("errr", err.message);
-  }
   res.render("home");
 });
 
-app.use("/user", userRouter);
 
 io.on("connection", (socket) => {
   const id = socket.handshake.query.id;
