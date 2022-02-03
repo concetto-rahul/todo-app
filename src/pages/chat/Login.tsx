@@ -6,6 +6,7 @@ import { Typography, Box, TextField, Button } from "@material-ui/core";
 import { checkChatLoginValidation } from "../../validations/chatLoginValidation";
 import { isEmpty } from "../../validations/basicValidations";
 import { ChatContext } from "../../context/chat";
+import chatInstance from "../../utils/chatsInstance";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -20,7 +21,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 const Login: FC<any> = (): ReactElement => {
   const classes = useStyles();
-  const { saveLoginData }=useContext(ChatContext);
+  const { saveLoginData } = useContext(ChatContext);
 
   const navigate = useNavigate();
   const [mobileNumber, setMobileNumber] = useState<string>("");
@@ -35,9 +36,24 @@ const Login: FC<any> = (): ReactElement => {
     if (!isEmpty(validationError)) {
       setFormErrors({ ...validationError });
     } else {
-      event.target.reset();
-      saveLoginData(formData);
-      navigate("/chat");
+      chatInstance
+        .post("/user/login", {
+          phone: mobileNumber,
+          name: userName,
+        })
+        .then((res) => {
+          if (res.data.status) {
+            event.target.reset();
+            saveLoginData({...formData,loginToken: res?.data?.data?.login_token});
+            navigate("/chat");
+          } else {
+            alert("login fail.");
+          }
+        })
+        .catch((err) => {
+          console.log("login errr", err);
+          alert("unable to login.");
+        });
     }
   };
 

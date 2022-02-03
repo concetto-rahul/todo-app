@@ -1,22 +1,28 @@
 const { port, view_engine } = require("./config/index");
 
 const app = require("express")();
-var bodyParser = require('body-parser')
+var bodyParser = require("body-parser");
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, { cors: { origin: "*" } });
+const cors = require('cors');
 
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", view_engine);
 
+const { checkToken } = require("./middleware/tokenAuth");
 const userRouter = require("./router/user");
+const contactRouter = require("./router/contact");
 
 app.use("/user", userRouter);
+app.use("/contact", checkToken, contactRouter);
 
 app.get("/", async (req, res) => {
   res.render("home");
 });
-
 
 io.on("connection", (socket) => {
   const id = socket.handshake.query.id;

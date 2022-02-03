@@ -1,11 +1,12 @@
 const { verify } = require("jsonwebtoken");
 const { appAuthToken } = require("../config");
-const { failedResponse } = require("../validator/responseFormate");
+const { failedResponse } = require("../utility/responseFormate");
 
 module.exports = {
   checkToken: (req, res, next) => {
-    const token = req.get("authorization").slice(7);
+    let token = req.get("authorization");
     if (token) {
+      token = token.slice(7);
       try {
         const tokenData = verify(token, appAuthToken);
         req.body.tokenData = tokenData;

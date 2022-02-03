@@ -6,7 +6,7 @@ const { currentDateTime } = require("../utility/date");
 const {
   failedResponse,
   successResponse,
-} = require("../validator/responseFormate");
+} = require("../utility/responseFormate");
 
 exports.login = async (req, res) => {
   const { name, phone } = req.body;
@@ -77,7 +77,6 @@ exports.profile = async (req, res) => {
 
 exports.profile = async (req, res) => {
   const { tokenData } = req.body;
-  console.log(tokenData);
   try {
     const [result] = await db.execute(
       "select name,phone from users where id=?",

@@ -8,10 +8,12 @@ import {
 } from "react";
 import { isArrayEquals, getUniqueId } from "../utils/helper";
 import { SocketContext } from "./socket";
+import chatInstance from "../utils/chatsInstance";
 
 export interface LoginData {
   mobileNumber: string;
   userName: string;
+  loginToken?: string;
 }
 
 export interface ContactsData {
@@ -69,6 +71,7 @@ export const ChatContext = createContext<ChatContextType>({
 
 export const ChatContextProvider: FC<any> = ({ children }): ReactElement => {
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [refreshState, setEefreshState] = useState(false);
   const { socket } = useContext(SocketContext);
   const [showContact, setShowContact] = useState(false);
   const [selectConversationUserID, setConversationUserID] =
@@ -96,21 +99,38 @@ export const ChatContextProvider: FC<any> = ({ children }): ReactElement => {
       };
     });
 
-  const saveLoginData = ({ mobileNumber, userName }: LoginData) => {
+  const saveLoginData = ({ mobileNumber, userName, loginToken }: LoginData) => {
     localStorage.setItem("chat-userID", mobileNumber);
     localStorage.setItem("chat-userName", userName);
+    loginToken && localStorage.setItem("appAuthToken", loginToken);
+    chatInstance
+      .get("/contact")
+      .then((res) => {
+        if (res.data.status) {
+          console.log("res.data.data", res.data.data);
+          res.data.data &&
+            localStorage.setItem(
+              "chat-contactList",
+              JSON.stringify(res.data.data)
+            );
+        }
+      })
+      .finally(() => setEefreshState(true));
   };
 
   const logoutLoginData = () => {
     localStorage.removeItem("chat-userID");
     localStorage.removeItem("chat-userName");
     localStorage.removeItem("chat-contactList");
+    localStorage.removeItem("appAuthToken");
   };
 
   const createContact = (data: ContactsData) => {
     let contactData = contactList;
     contactData = [...contactList, data];
     localStorage.setItem("chat-contactList", JSON.stringify(contactData));
+    setEefreshState(false);
+    chatInstance.post("/contact",data).finally(() => setEefreshState(true));
   };
 
   const handeleCloseForm = () => {
