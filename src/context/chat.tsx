@@ -108,11 +108,11 @@ export const ChatContextProvider: FC<any> = ({ children }): ReactElement => {
       .then((res) => {
         if (res.data.status) {
           console.log("res.data.data", res.data.data);
-          res.data.data &&
-            localStorage.setItem(
-              "chat-contactList",
-              JSON.stringify(res.data.data)
-            );
+          // res.data.data &&
+          //   localStorage.setItem(
+          //     "chat-contactList",
+          //     JSON.stringify(res.data.data)
+          //   );
         }
       })
       .finally(() => setEefreshState(true));
@@ -130,7 +130,7 @@ export const ChatContextProvider: FC<any> = ({ children }): ReactElement => {
     contactData = [...contactList, data];
     localStorage.setItem("chat-contactList", JSON.stringify(contactData));
     setEefreshState(false);
-    chatInstance.post("/contact",data).finally(() => setEefreshState(true));
+    chatInstance.post("/contact",{name:data.userName,phone:data.userID}).finally(() => setEefreshState(true));
   };
 
   const handeleCloseForm = () => {

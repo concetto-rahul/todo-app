@@ -27,7 +27,7 @@ export default function CreateNewContact() {
     if (!isEmpty(validationError)) {
       setFormErrors({ ...validationError });
     } else {
-      createContact({ name: userName, phone: mobileNumber });
+      createContact({ userName, userID: mobileNumber });
       setMobileNumber("");
       setUserName("");
       setFormErrors({});
